@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">CocktailDB</string>
+    <string name="drinks">Drinks</string>
+    <string name="filters">Filters</string>
+    <string name="apply">APPLY</string>
+    <string name="filter_name">FilterName</string>
+    <string name="saved_filters_key">savedFiltersKey</string>
+    <string name="saved_filters_default_key">Ordinary Drink</string>
+
+</resources>
