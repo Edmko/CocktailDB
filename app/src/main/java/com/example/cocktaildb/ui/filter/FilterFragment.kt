@@ -1,31 +1,33 @@
 package com.example.cocktaildb.ui.filter
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cocktaildb.R
-import com.example.cocktaildb.TypeConverter
 import com.example.cocktaildb.ViewModelFactory
-import com.example.cocktaildb.data.entity.DrinkX
+
 import com.example.cocktaildb.repository.CocktailsRepository
-import com.example.cocktaildb.ui.main.MainFragmentDirections
-import com.example.cocktaildb.ui.main.MainViewModel
+import com.example.cocktaildb.utils.Status
 import kotlinx.android.synthetic.main.filter_fragment.*
+import kotlinx.coroutines.delay
 
-class FilterFragment : Fragment() {
+class FilterFragment : Fragment(), View.OnClickListener {
 
 
-    private val viewModel by viewModels<FilterViewModel>{ ViewModelFactory(CocktailsRepository(),this) }
+    private val viewModel by viewModels<FilterViewModel> {
+        ViewModelFactory(
+            CocktailsRepository(),
+            this
+        )
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,34 +39,15 @@ class FilterFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         initRecyclerView()
         loadSharedPrefs()
-        viewModel.loadFiltersList()
+        initButtons()
         listenViewModel()
-
-        backIcon.setOnClickListener {
-            val listOfFilters =  viewModel.getListOfFilter((filtersRecycler.adapter as FiltersAdapter).getArrayOfFilters())
-            if (!listOfFilters.isBlank()){saveSharedPref(listOfFilters)}
-            findNavController().navigate(R.id.action_filterFragment_to_mainFragment)
-        }
-
-        applyBtn.setOnClickListener {
-            val listOfFilters =  viewModel.getListOfFilter((filtersRecycler.adapter as FiltersAdapter).getArrayOfFilters())
-            if (!listOfFilters.isBlank()){saveSharedPref(listOfFilters)}
-
-            findNavController().navigate(R.id.action_filterFragment_to_mainFragment)
-        }
 
     }
 
-    private fun loadSharedPrefs() {
-        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
-        val defaultValue = resources.getString(R.string.saved_filters_default_key)
-        val stringOfFilters =
-            sharedPref.getString(getString(R.string.saved_filters_key), defaultValue)!!
 
-        if (stringOfFilters != defaultValue) {
-           viewModel.filtersList = TypeConverter.stringToList(stringOfFilters) ?: mutableListOf(defaultValue)
-        }
-
+    private fun initButtons() {
+        backIcon.setOnClickListener(this)
+        applyBtn.setOnClickListener(this)
     }
 
     private fun initRecyclerView() {
@@ -75,21 +58,48 @@ class FilterFragment : Fragment() {
         }
     }
 
-    private fun saveSharedPref(filters: String) {
-        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)
-        sharedPref?.edit {
-            putString(
+    private fun saveFiltersToSharedPref(filters: Set<String>) {
+        val sharedPreferences = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+        with(sharedPreferences.edit()) {
+            putStringSet(
                 getString(R.string.saved_filters_key),
-               filters
+                filters
             )
             commit()
         }
     }
 
+    private fun loadSharedPrefs() {
+        val sharedPreferences = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+        val defaultValue = mutableSetOf<String>()
+        viewModel.filtersList=
+            sharedPreferences.getStringSet(
+                resources.getString(R.string.saved_filters_key),
+                defaultValue
+            )!!
+    }
+
     private fun listenViewModel() {
-        viewModel.filtersLiveData.observe(viewLifecycleOwner, {
-            (filtersRecycler.adapter as FiltersAdapter).setData(it, viewModel.filtersList)
+        viewModel.getFilters().observe(viewLifecycleOwner, {
+            (filtersRecycler.adapter as FiltersAdapter).setData(
+                it?.data,
+                viewModel.filtersList
+            )
         })
+    }
+
+    override fun onClick(v: View?) {
+        when (v) {
+            backIcon -> findNavController().navigate(R.id.action_filterFragment_to_mainFragment)
+            applyBtn -> {
+                val listOfFilters =
+                    (filtersRecycler.adapter as FiltersAdapter).getListOfFilters()
+                Log.d(FilterFragment::class.java.simpleName, "List: $listOfFilters")
+                saveFiltersToSharedPref(listOfFilters)
+
+                findNavController().navigate(R.id.action_filterFragment_to_mainFragment)
+            }
+        }
     }
 
 

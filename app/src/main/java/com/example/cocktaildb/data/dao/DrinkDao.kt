@@ -6,9 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.cocktaildb.data.entity.DatabaseDrink
-import com.example.cocktaildb.data.entity.Drink
-import io.reactivex.Completable
-import java.util.concurrent.CompletableFuture
 
 
 @Dao
@@ -20,5 +17,5 @@ interface DrinkDao {
     fun getDrinks(): DataSource.Factory<Int, DatabaseDrink>
 
     @Query("SELECT * FROM drink WHERE drink_type IN (:filter)")
-    fun getDrinksByType(filter: List<String>): DataSource.Factory<Int, DatabaseDrink>
+    fun observeDrinksByType(filter: MutableSet<String>): DataSource.Factory<Int, DatabaseDrink>
 }

@@ -18,7 +18,6 @@ abstract class CocktailModel : EpoxyModelWithHolder<CocktailModel.Holder>() {
     lateinit var imageUrl: String
     @EpoxyAttribute
     lateinit var title: String
-
     override fun bind(holder: Holder) {
         super.bind(holder)
         holder.titleView.text = title
@@ -31,6 +30,7 @@ abstract class CocktailModel : EpoxyModelWithHolder<CocktailModel.Holder>() {
         override fun bindView(itemView: View) {
             titleView = itemView.title
             image = itemView.image
+
         }
 
 

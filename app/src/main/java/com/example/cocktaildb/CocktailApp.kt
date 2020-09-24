@@ -15,6 +15,7 @@ open class CocktailApp : Application() {
         super.onCreate()
         appDatabase = AppDatabase.getInstance(this)
         appContext = this
+
         Stetho.initialize(
             Stetho.newInitializerBuilder(this)
                 .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))

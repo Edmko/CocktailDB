@@ -1,30 +1,33 @@
 package com.example.cocktaildb.ui.filter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cocktaildb.R
-import kotlinx.android.synthetic.main.drink_item.view.*
+import com.example.cocktaildb.data.entity.Filters
 import kotlinx.android.synthetic.main.filter_item.view.*
 
 class FiltersAdapter : RecyclerView.Adapter<FiltersAdapter.FiltersViewHolder>() {
-    private val checkedFilters = ArrayList<String>()
-    private val filters = ArrayList<String>()
-    fun setData(filters: List<String>, checkedFilters: List<String>) {
+    private var checkedFilters = mutableSetOf<String>()
+    private val filters = mutableListOf<String>()
+
+    fun setData(filters: Filters?, checkedFilters: MutableSet<String>) {
         this.filters.clear()
         this.checkedFilters.clear()
-
-        this.filters.addAll(filters)
-        this.checkedFilters.addAll(checkedFilters)
+        filters?.drinks?.forEach { drinkX -> this.filters.add(drinkX.strCategory) }
+        if (checkedFilters.isEmpty()) {
+            this.checkedFilters.addAll(this.filters)
+        } else {
+            this.checkedFilters.addAll(checkedFilters)
+        }
         notifyDataSetChanged()
     }
 
-    fun getArrayOfFilters(): ArrayList<String> {
-        val list = ArrayList<String>()
-        filters.forEach {filter -> if (checkedFilters.contains(filter)) list.add(filter) }
-        return list
+    fun getListOfFilters(): MutableSet<String> {
+        val listOfFilters = mutableSetOf<String>()
+        filters.forEach { filter -> if (checkedFilters.contains(filter)) listOfFilters.add(filter) }
+        return listOfFilters
     }
 
     override fun getItemCount(): Int = filters.size
@@ -41,10 +44,12 @@ class FiltersAdapter : RecyclerView.Adapter<FiltersAdapter.FiltersViewHolder>() 
 
 
     inner class FiltersViewHolder(viewHolder: View) : RecyclerView.ViewHolder(viewHolder) {
+
         fun bindTo(drinkX: String) {
             itemView.apply {
                 filter_name.text = drinkX
                 checkbox.isChecked = checkedFilters.contains(drinkX)
+
                 this.setOnClickListener {
                     checkbox.isChecked = !checkbox.isChecked
                     if (checkbox.isChecked) {
@@ -57,16 +62,6 @@ class FiltersAdapter : RecyclerView.Adapter<FiltersAdapter.FiltersViewHolder>() 
                 }
             }
         }
-
-
-        private fun <K, V> Map<out K, V>.getOrDefaultCompat(key: K, defaultValue: V):
-                V {
-            if (this.containsKey(key)) {
-                return this[key] ?: defaultValue
-            }
-            return defaultValue
-        }
-
 
     }
 }

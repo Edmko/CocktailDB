@@ -2,23 +2,27 @@ package com.example.cocktaildb.repository
 
 import androidx.paging.DataSource
 import com.example.cocktaildb.data.entity.DatabaseDrink
+import com.example.cocktaildb.data.entity.asDatabaseDrink
 
 class CocktailsRepository {
+
     private val serverCommunicator = ServerCommunicator()
     private val cocktailsLocalDataSource = CocktailsLocalDataSource()
 
-    fun saveDrinksToLocalDataSource(filters: List<String>) {
-        serverCommunicator.loadCocktailsListToData(filters)
+   suspend fun saveDrinksToLocalDataSource(filters: MutableSet<String>) {
+        filters.forEach {filter ->
+            val response = serverCommunicator.getDrinksByFilter(filter)
+            cocktailsLocalDataSource.insertDrinks(response.drinks.asDatabaseDrink(filter))
+            }
+    }
 
+    fun observeDrinksByFilters(filter: MutableSet<String>):DataSource.Factory<Int, DatabaseDrink> {
+        return cocktailsLocalDataSource.observeDrinksByType(filter)
     }
-    fun getDrinkByType(filter : List<String>): DataSource.Factory<Int, DatabaseDrink>{
-        return cocktailsLocalDataSource.getDrinksByType(filter)
-    }
+
     fun observeDrink(): DataSource.Factory<Int, DatabaseDrink> {
         return cocktailsLocalDataSource.observeDrinks()
     }
 
-    fun loadFilterList() : MutableList<String>{
-        return serverCommunicator.loadFiltersList()
-    }
+    suspend fun loadFilterList() = serverCommunicator.loadFiltersList()
 }

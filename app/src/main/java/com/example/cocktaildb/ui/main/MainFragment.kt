@@ -7,41 +7,37 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.airbnb.epoxy.EpoxyVisibilityTracker
-import com.airbnb.epoxy.stickyheader.StickyHeaderLinearLayoutManager
+import com.example.cocktaildb.MainActivity
 import com.example.cocktaildb.R
-import com.example.cocktaildb.TypeConverter
 import com.example.cocktaildb.ViewModelFactory
-import com.example.cocktaildb.data.dao.DrinkDao
-import com.example.cocktaildb.repository.CocktailsLocalDataSource
 import com.example.cocktaildb.repository.CocktailsRepository
-import com.example.cocktaildb.repository.ServerCommunicator
 import kotlinx.android.synthetic.main.main_fragment.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import okhttp3.internal.notify
 
 class MainFragment : Fragment() {
+    val TAG = MainFragment::class.java.simpleName
     lateinit var controller: RecyclerController
-    private val viewModel by viewModels<MainViewModel> {
-        ViewModelFactory(
-            CocktailsRepository(),
-            this
-        )
-    }
+    private val viewModel by viewModels<MainViewModel> { ViewModelFactory(CocktailsRepository(), this) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         return inflater.inflate(R.layout.main_fragment, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        Log.d(TAG, "MainFragment started")
+        loadSharedPrefs()
         viewModel.loadData(loadSharedPrefs())
         initRecyclerView()
         listenViewModel()
@@ -53,8 +49,7 @@ class MainFragment : Fragment() {
     }
 
     private fun initRecyclerView() {
-
-           controller = RecyclerController(loadSharedPrefs())
+            controller = RecyclerController()
         recycler.apply {
             layoutManager = LinearLayoutManager(activity as Context)
             adapter = controller.adapter
@@ -63,21 +58,17 @@ class MainFragment : Fragment() {
 
     }
 
-    private fun loadSharedPrefs(): List<String> {
+    private fun loadSharedPrefs(): MutableSet<String> {
         val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE)
-        val defaultValue = resources.getString(R.string.saved_filters_default_key)
-        val stringOfFilters =
-            sharedPref?.getString(getString(R.string.saved_filters_key), defaultValue)!!
-        var filtersList = mutableListOf<String>()
-        if (stringOfFilters != defaultValue) {
-            filtersList = TypeConverter.stringToList(stringOfFilters) ?: mutableListOf(defaultValue)
-        }
-        return filtersList
+        val defaultValue = mutableSetOf<String>()
+        Log.d(TAG, sharedPref?.getStringSet(getString(R.string.saved_filters_key), defaultValue).toString())
+        return  sharedPref?.getStringSet(getString(R.string.saved_filters_key), defaultValue)!!
     }
-    private fun listenViewModel(){
+
+    private fun listenViewModel() {
         viewModel.drinksList.observe(viewLifecycleOwner, {
             controller.submitList(it)
 
-    })
+        })
     }
 }
