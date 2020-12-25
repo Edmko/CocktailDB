@@ -1,26 +1,44 @@
 package com.example.cocktaildb.ui.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.paging.LivePagedListBuilder
-import androidx.paging.PagedList
-import com.example.cocktaildb.data.entity.DatabaseDrink
-import com.example.cocktaildb.repository.CocktailsRepository
+import com.example.cocktaildb.data.entity.Drink
+import com.example.cocktaildb.data.entity.Filter
+import com.example.cocktaildb.repository.CocktailRepositoryImpl
+import com.example.cocktaildb.ui.base.BaseViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel(private val repository: CocktailsRepository) : ViewModel() {
+class MainViewModel @Inject constructor(
+    private val repository: CocktailRepositoryImpl
+) : BaseViewModel() {
 
-    lateinit var drinksList: LiveData<PagedList<DatabaseDrink>>
-    private val config =
-        PagedList.Config.Builder().setPageSize(20).setEnablePlaceholders(false).build()
+    var filterList = mutableListOf<Filter>()
+    private var _drinksList = MutableLiveData<List<Drink>>()
+    var offset = 0
+    var drinksList = _drinksList
+    var drinkListTemp = arrayListOf<Drink>()
 
-    fun loadData(filters: MutableSet<String>) {
-        drinksList =
-            LivePagedListBuilder(repository.observeDrinksByFilters(filters), config).build()
 
+    init {
+        loadData()
+    }
+
+    fun loadData() {
         viewModelScope.launch {
-            repository.saveDrinksToLocalDataSource(filters)
+            if (filterList.isEmpty()) {
+                filterList.addAll(repository.loadFiltersList())
+            }
+            loadCocktails()
+        }
+    }
+
+    fun loadCocktails() {
+        viewModelScope.launch {
+            drinkListTemp.addAll(repository.getDrinksByFilter(filterList[offset].title))
+            offset++
+            _drinksList.value = drinkListTemp
+
         }
     }
 }

@@ -1,25 +1,22 @@
 package com.example.cocktaildb
 
-import android.app.Application
-import android.content.Context
-import com.example.cocktaildb.data.AppDatabase
-import com.facebook.stetho.Stetho
+import androidx.appcompat.app.AppCompatDelegate
+import com.ashokvarma.gander.Gander
+import com.ashokvarma.gander.imdb.GanderIMDB
+import com.example.cocktaildb.di.DaggerApplicationComponent
+import dagger.android.AndroidInjector
+import dagger.android.DaggerApplication
+import dagger.android.HasAndroidInjector
 
-open class CocktailApp : Application() {
-    companion object {
-        lateinit var appDatabase: AppDatabase
-        lateinit var appContext: Context
+open class CocktailApp : DaggerApplication(), HasAndroidInjector {
+
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
+        return DaggerApplicationComponent.builder().create(this)
     }
 
     override fun onCreate() {
         super.onCreate()
-        appDatabase = AppDatabase.getInstance(this)
-        appContext = this
-
-        Stetho.initialize(
-            Stetho.newInitializerBuilder(this)
-                .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
-                .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
-                .build());
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        Gander.setGanderStorage(GanderIMDB.getInstance())
     }
 }

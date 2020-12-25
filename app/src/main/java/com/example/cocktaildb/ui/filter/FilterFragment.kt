@@ -6,33 +6,22 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cocktaildb.R
-import com.example.cocktaildb.ViewModelFactory
-
-import com.example.cocktaildb.repository.CocktailsRepository
-import com.example.cocktaildb.utils.Status
+import com.example.cocktaildb.data.entity.Filter
+import com.example.cocktaildb.ui.base.BaseFragment
 import kotlinx.android.synthetic.main.filter_fragment.*
-import kotlinx.coroutines.delay
 
-class FilterFragment : Fragment(), View.OnClickListener {
+class FilterFragment : BaseFragment<FilterViewModel>(), View.OnClickListener {
 
 
-    private val viewModel by viewModels<FilterViewModel> {
-        ViewModelFactory(
-            CocktailsRepository(),
-            this
-        )
-    }
+    override val layout: Int = R.layout.filter_fragment
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.filter_fragment, container, false)
+    override val viewModel: FilterViewModel by lazy { provideViewModel(FilterViewModel::class.java) }
+
+    override fun onSetupLayout(view: View) {
+
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -76,13 +65,13 @@ class FilterFragment : Fragment(), View.OnClickListener {
             sharedPreferences.getStringSet(
                 resources.getString(R.string.saved_filters_key),
                 defaultValue
-            )!!
+            )!!.map { Filter(it) }
     }
 
     private fun listenViewModel() {
         viewModel.getFilters().observe(viewLifecycleOwner, {
             (filtersRecycler.adapter as FiltersAdapter).setData(
-                it?.data,
+                it?.data?: emptyList(),
                 viewModel.filtersList
             )
         })

@@ -5,28 +5,24 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cocktaildb.R
-import com.example.cocktaildb.data.entity.Filters
+import com.example.cocktaildb.data.entity.Filter
 import kotlinx.android.synthetic.main.filter_item.view.*
 
 class FiltersAdapter : RecyclerView.Adapter<FiltersAdapter.FiltersViewHolder>() {
-    private var checkedFilters = mutableSetOf<String>()
-    private val filters = mutableListOf<String>()
+    private var checkedFilters = mutableSetOf<Filter>()
+    private val filters = mutableListOf<Filter>()
 
-    fun setData(filters: Filters?, checkedFilters: MutableSet<String>) {
+    fun setData(filters: List<Filter>, checkedFilters: List<Filter>) {
         this.filters.clear()
         this.checkedFilters.clear()
-        filters?.drinks?.forEach { drinkX -> this.filters.add(drinkX.strCategory) }
-        if (checkedFilters.isEmpty()) {
-            this.checkedFilters.addAll(this.filters)
-        } else {
-            this.checkedFilters.addAll(checkedFilters)
-        }
+        this.filters.addAll(filters)
+        this.checkedFilters.addAll(checkedFilters)
         notifyDataSetChanged()
     }
 
     fun getListOfFilters(): MutableSet<String> {
         val listOfFilters = mutableSetOf<String>()
-        filters.forEach { filter -> if (checkedFilters.contains(filter)) listOfFilters.add(filter) }
+        filters.forEach { filter -> if (checkedFilters.contains(filter)) listOfFilters.add(filter.title) }
         return listOfFilters
     }
 
@@ -39,7 +35,7 @@ class FiltersAdapter : RecyclerView.Adapter<FiltersAdapter.FiltersViewHolder>() 
     }
 
     override fun onBindViewHolder(holder: FiltersViewHolder, position: Int) {
-        holder.bindTo(filters[position])
+        holder.bindTo(filters[position].title)
     }
 
 
@@ -48,15 +44,15 @@ class FiltersAdapter : RecyclerView.Adapter<FiltersAdapter.FiltersViewHolder>() 
         fun bindTo(drinkX: String) {
             itemView.apply {
                 filter_name.text = drinkX
-                checkbox.isChecked = checkedFilters.contains(drinkX)
+                checkbox.isChecked = checkedFilters.contains(Filter(drinkX))
 
                 this.setOnClickListener {
                     checkbox.isChecked = !checkbox.isChecked
                     if (checkbox.isChecked) {
-                        checkedFilters.add(it.filter_name.text.toString())
+                        checkedFilters.add(Filter(it.filter_name.text.toString()))
 
                     } else {
-                        checkedFilters.remove(it.filter_name.text.toString())
+                        checkedFilters.remove(Filter(it.filter_name.text.toString()))
                     }
 
                 }

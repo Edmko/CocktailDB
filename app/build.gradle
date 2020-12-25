@@ -30,8 +30,17 @@ android {
 
     buildTypes {
         release {
+            debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    flavorDimensions "environment"
+    productFlavors {
+        dev {
+            dimension "environment"
+            applicationIdSuffix ".dev"
+            buildConfigField 'String', 'ENDPOINT', "\"https://www.thecocktaildb.com/api/json/v1/1/\""
         }
     }
 }
@@ -43,45 +52,38 @@ dependencies {
     //GSON
     implementation 'com.google.code.gson:gson:2.8.6'
 
-    //Room
-    implementation "androidx.room:room-runtime:2.2.5"
-    implementation "androidx.room:room-ktx:2.2.5"
-    kapt "androidx.room:room-compiler:2.2.5"
     //Epoxy
     implementation 'com.airbnb.android:epoxy-paging:3.6.0'
     implementation "com.airbnb.android:epoxy:4.1.0"
     kapt "com.airbnb.android:epoxy-processor:4.1.0"
-    //Picasso
-
-    implementation 'com.squareup.picasso:picasso:2.71828'
+    //Glide
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
     //Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
-    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
-    //RxJava 2
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.9'
-    implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
-    //Pagging
-    implementation "androidx.paging:paging-runtime:2.1.2" // For Kotlin use paging-runtime-ktx
-    implementation "androidx.paging:paging-rxjava2:2.1.2"
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+    //Dagger
+    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+    implementation "com.google.dagger:dagger:$daggerVersion"
+    implementation "com.google.dagger:dagger-android-support:$daggerVersion"
+    kapt "com.google.dagger:dagger-android-processor:$daggerVersion"
 
-  // For Kotlin use paging-rxjava2-ktx
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.3.1'
+    implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0"
 
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.2'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.3.2'
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
+    debugImplementation 'com.ashokvarma.android:gander-imdb:3.1.0'
+    releaseImplementation 'com.ashokvarma.android:gander-no-op:3.1.0'
 }

@@ -1,40 +1,36 @@
 package com.example.cocktaildb.ui.main
 
-import com.airbnb.epoxy.EpoxyModel
-import com.airbnb.epoxy.paging.PagedListEpoxyController
-import com.example.cocktaildb.data.entity.DatabaseDrink
-import com.example.cocktaildb.ui.main.models.CocktailModel_
-import com.example.cocktaildb.ui.main.models.TypeModel_
+import com.airbnb.epoxy.EpoxyController
+import com.example.cocktaildb.data.entity.Drink
+import com.example.cocktaildb.data.entity.Filter
+import com.example.cocktaildb.ui.main.models.cocktail
+import com.example.cocktaildb.ui.main.models.type
 
-class RecyclerController :
-    PagedListEpoxyController<DatabaseDrink>() {
-    var filterNow = "now"
-    var filterItem = "item"
+class RecyclerController : EpoxyController() {
 
-    override fun buildItemModel(currentPosition: Int, item: DatabaseDrink?): EpoxyModel<*> {
-        filterItem = item?.drinkType ?: ""
-        return when {
-            item == null -> {
-                CocktailModel_()
-                    .id(-currentPosition)
-                    .title("loading $currentPosition")
-                    .imageUrl(" ")
+    private val drinks = mutableListOf<Drink>()
+    private val filters = mutableListOf<Filter>()
+    override fun buildModels() {
+        filters.forEach { filter ->
+            type {
+                id(filter.title)
+               type(filter.title)
             }
-            filterItem != filterNow -> {
-                filterNow = filterItem
-                TypeModel_()
-                    .id(filterNow)
-                    .type(filterNow)
-                    .title(item.strDrink)
-                    .imageUrl(item.strDrinkThumb)
-
-            }
-            else -> {
-                CocktailModel_()
-                    .id("drink${currentPosition}")
-                    .title(item.strDrink)
-                    .imageUrl(item.strDrinkThumb)
+            drinks.filter { it.type == filter.title }.forEachIndexed { index, item ->
+                cocktail {
+                    id(item.id)
+                    title(item.title)
+                    imageUrl(item.image?:" ")
+                }
             }
         }
+    }
+
+    fun submitList(filterList: List<Filter>, drinkList: List<Drink>) {
+        drinks.clear()
+        filters.clear()
+        drinks.addAll(drinkList)
+        filters.addAll(filterList)
+        requestModelBuild()
     }
 }
