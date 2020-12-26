@@ -25,7 +25,7 @@ abstract class CocktailModel : EpoxyModelWithHolder<CocktailModel.Holder>() {
         super.bind(holder)
         holder.titleView.text = title
         if (imageUrl.isNotEmpty()) {
-            Glide.with(holder.image.context).load(imageUrl).into(holder.image)
+            Glide.with(holder.image.context).load(imageUrl).override(200).centerInside().into(holder.image)
         }
     }
 

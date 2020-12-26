@@ -24,7 +24,7 @@ class MainViewModel @Inject constructor(
         loadData()
     }
 
-    fun loadData() {
+    private fun loadData() {
         viewModelScope.launch {
             if (filterList.isEmpty()) {
                 filterList.addAll(repository.loadFiltersList())
@@ -35,6 +35,8 @@ class MainViewModel @Inject constructor(
 
     fun loadCocktails() {
         viewModelScope.launch {
+            if (offset>=filterList.size){
+                return@launch            }
             drinkListTemp.addAll(repository.getDrinksByFilter(filterList[offset].title))
             offset++
             _drinksList.value = drinkListTemp

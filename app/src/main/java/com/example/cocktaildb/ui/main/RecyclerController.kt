@@ -10,13 +10,14 @@ class RecyclerController : EpoxyController() {
 
     private val drinks = mutableListOf<Drink>()
     private val filters = mutableListOf<Filter>()
+
     override fun buildModels() {
         filters.forEach { filter ->
             type {
                 id(filter.title)
                type(filter.title)
             }
-            drinks.filter { it.type == filter.title }.forEachIndexed { index, item ->
+            drinks.filter { it.type == filter.title }.forEach{ item ->
                 cocktail {
                     id(item.id)
                     title(item.title)
