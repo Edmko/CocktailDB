@@ -9,7 +9,7 @@ import com.example.cocktaildb.data.entity.Filter
 import kotlinx.android.synthetic.main.filter_item.view.*
 
 class FiltersAdapter : RecyclerView.Adapter<FiltersAdapter.FiltersViewHolder>() {
-    private var checkedFilters = mutableSetOf<Filter>()
+    private var checkedFilters = mutableListOf<Filter>()
     private val filters = mutableListOf<Filter>()
 
     fun setData(filters: List<Filter>, checkedFilters: List<Filter>) {
@@ -20,11 +20,7 @@ class FiltersAdapter : RecyclerView.Adapter<FiltersAdapter.FiltersViewHolder>() 
         notifyDataSetChanged()
     }
 
-    fun getListOfFilters(): MutableSet<String> {
-        val listOfFilters = mutableSetOf<String>()
-        filters.forEach { filter -> if (checkedFilters.contains(filter)) listOfFilters.add(filter.title) }
-        return listOfFilters
-    }
+    fun getListOfFilters() = checkedFilters
 
     override fun getItemCount(): Int = filters.size
 
@@ -37,7 +33,6 @@ class FiltersAdapter : RecyclerView.Adapter<FiltersAdapter.FiltersViewHolder>() 
     override fun onBindViewHolder(holder: FiltersViewHolder, position: Int) {
         holder.bindTo(filters[position].title)
     }
-
 
     inner class FiltersViewHolder(viewHolder: View) : RecyclerView.ViewHolder(viewHolder) {
 

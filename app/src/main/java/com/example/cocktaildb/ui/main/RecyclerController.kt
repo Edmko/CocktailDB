@@ -5,8 +5,9 @@ import com.example.cocktaildb.data.entity.Drink
 import com.example.cocktaildb.data.entity.Filter
 import com.example.cocktaildb.ui.main.models.cocktail
 import com.example.cocktaildb.ui.main.models.type
+import javax.inject.Inject
 
-class RecyclerController : EpoxyController() {
+class RecyclerController @Inject constructor() : EpoxyController() {
 
     private val drinks = mutableListOf<Drink>()
     private val filters = mutableListOf<Filter>()
@@ -15,13 +16,13 @@ class RecyclerController : EpoxyController() {
         filters.forEach { filter ->
             type {
                 id(filter.title)
-               type(filter.title)
+                type(filter.title)
             }
-            drinks.filter { it.type == filter.title }.forEach{ item ->
+            drinks.filter { it.type == filter.title }.forEach { item ->
                 cocktail {
                     id(item.id)
                     title(item.title)
-                    imageUrl(item.image?:" ")
+                    imageUrl(item.image ?: " ")
                 }
             }
         }
