@@ -7,22 +7,34 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.cocktaildb.di.ViewModelFactory
 import dagger.android.support.AndroidSupportInjection
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
-abstract class BaseFragment<VM: BaseViewModel>: Fragment() {
+abstract class BaseFragment<VM : BaseViewModel> : Fragment(), CoroutineScope {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
     abstract val layout: Int
 
-    abstract val viewModel : VM
+    private val scopeJob: Job = SupervisorJob()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    abstract val viewModel: VM
+
+    override val coroutineContext: CoroutineContext = scopeJob + Dispatchers.Main
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return if (view != null) view else inflater.inflate(layout, container, false)
     }
 

@@ -5,11 +5,13 @@ import android.view.View
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.cocktaildb.R
-import com.example.cocktaildb.data.entity.Filter
 import com.example.cocktaildb.ui.base.BaseFragment
 import com.example.cocktaildb.ui.main.events.HideMoreButton
 import com.example.cocktaildb.ui.main.events.ShowMoreButton
+import com.example.cocktaildb.utils.view.clicksWithDelay
 import kotlinx.android.synthetic.main.main_fragment.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainFragment : BaseFragment<MainViewModel>() {
@@ -17,29 +19,33 @@ class MainFragment : BaseFragment<MainViewModel>() {
     @Inject
     lateinit var controller: RecyclerController
 
-    override val viewModel: MainViewModel by lazy {  provideViewModel(MainViewModel::class.java)}
+    override val viewModel: MainViewModel by lazy { provideViewModel(MainViewModel::class.java) }
 
     override val layout: Int = R.layout.main_fragment
 
-    private val args : MainFragmentArgs by navArgs()
+    private val args: MainFragmentArgs by navArgs()
 
     override fun onSetupLayout(view: View) {
-
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         initRecyclerView()
+        initButtonListeners()
         listenViewModel()
         viewModel.setFilters(args.filterList?.toList())
-        filterBtn.setOnClickListener {
-            val action = MainFragmentDirections.actionMainFragmentToFilterFragment(viewModel.getFilters().toTypedArray())
-            findNavController().navigate(action)
-        }
-        btnShowMore.setOnClickListener {
-            viewModel.loadCocktails()
-        }
+    }
 
+    private fun initButtonListeners() {
+        launch {
+            filterBtn.clicksWithDelay().collect {
+                val action = MainFragmentDirections.actionMainFragmentToFilterFragment(
+                    viewModel.getFilters().toTypedArray()
+                )
+                findNavController().navigate(action)
+            }
+        }
+        launch {
+            btnShowMore.clicksWithDelay().collect {
+                viewModel.loadCocktails()
+            }
+        }
     }
 
     private fun initRecyclerView() {
@@ -53,8 +59,8 @@ class MainFragment : BaseFragment<MainViewModel>() {
 
         })
 
-        viewModel.eventLiveEvent.observe(viewLifecycleOwner, {events ->
-            when(events){
+        viewModel.eventLiveEvent.observe(viewLifecycleOwner, { events ->
+            when (events) {
                 HideMoreButton -> btnShowMore.visibility = View.GONE
                 ShowMoreButton -> btnShowMore.visibility = View.VISIBLE
             }

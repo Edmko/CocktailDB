@@ -1,15 +1,17 @@
 package com.example.cocktaildb.ui.filter
 
-import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cocktaildb.R
 import com.example.cocktaildb.ui.base.BaseFragment
+import com.example.cocktaildb.utils.view.clicksWithDelay
 import kotlinx.android.synthetic.main.filter_fragment.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
-class FilterFragment : BaseFragment<FilterViewModel>(), View.OnClickListener {
+class FilterFragment : BaseFragment<FilterViewModel>() {
 
 
     override val layout: Int = R.layout.filter_fragment
@@ -19,20 +21,9 @@ class FilterFragment : BaseFragment<FilterViewModel>(), View.OnClickListener {
     private val args: FilterFragmentArgs by navArgs()
 
     override fun onSetupLayout(view: View) {
-
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         initRecyclerView()
-        initButtons()
+        listenButtons()
         listenViewModel()
-    }
-
-
-    private fun initButtons() {
-        backIcon.setOnClickListener(this)
-        applyBtn.setOnClickListener(this)
     }
 
     private fun initRecyclerView() {
@@ -42,26 +33,30 @@ class FilterFragment : BaseFragment<FilterViewModel>(), View.OnClickListener {
         }
     }
 
-    private fun listenViewModel() {
-        viewModel.getFilters().observe(viewLifecycleOwner, {
-            (filtersRecycler.adapter as FiltersAdapter).setData(
-                it?.data?: emptyList(),
-                args.filterList.toList()
-            )
-        })
-    }
-
-    override fun onClick(v: View?) {
-        when (v) {
-            backIcon -> findNavController().popBackStack()
-            applyBtn -> {
+    private fun listenButtons() {
+        launch {
+            imgBack.clicksWithDelay().collect {
+                findNavController().popBackStack()
+            }
+        }
+        launch {
+            btnApply.clicksWithDelay().collect {
                 val listOfFilters =
                     (filtersRecycler.adapter as FiltersAdapter).getListOfFilters().toTypedArray()
-                val action = FilterFragmentDirections.actionFilterFragmentToMainFragment(listOfFilters)
+                val action =
+                    FilterFragmentDirections.actionFilterFragmentToMainFragment(listOfFilters)
                 findNavController().navigate(action)
             }
         }
     }
 
+    private fun listenViewModel() {
+        viewModel.getFilters().observe(viewLifecycleOwner, {
+            (filtersRecycler.adapter as FiltersAdapter).setData(
+                it?.data ?: emptyList(),
+                args.filterList.toList()
+            )
+        })
+    }
 
 }

@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cocktaildb.R
 import com.example.cocktaildb.data.entity.Filter
-import kotlinx.android.synthetic.main.filter_item.view.*
+import kotlinx.android.synthetic.main.item_filter.view.*
 
 class FiltersAdapter : RecyclerView.Adapter<FiltersAdapter.FiltersViewHolder>() {
     private var checkedFilters = mutableListOf<Filter>()
@@ -25,34 +25,40 @@ class FiltersAdapter : RecyclerView.Adapter<FiltersAdapter.FiltersViewHolder>() 
     override fun getItemCount(): Int = filters.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FiltersViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        val view = layoutInflater.inflate(R.layout.filter_item, parent, false)
-        return FiltersViewHolder(view)
+        return FiltersViewHolder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_filter, parent, false)
+        )
     }
 
     override fun onBindViewHolder(holder: FiltersViewHolder, position: Int) {
-        holder.bindTo(filters[position].title)
+        holder.bindTo(filters[position])
     }
 
     inner class FiltersViewHolder(viewHolder: View) : RecyclerView.ViewHolder(viewHolder) {
-
-        fun bindTo(drinkX: String) {
+        fun bindTo(filter: Filter) {
             itemView.apply {
-                filter_name.text = drinkX
-                checkbox.isChecked = checkedFilters.contains(Filter(drinkX))
+                bindTitle(filter)
+                bindCheckBox(filter)
 
-                this.setOnClickListener {
+                setOnClickListener {
                     checkbox.isChecked = !checkbox.isChecked
-                    if (checkbox.isChecked) {
-                        checkedFilters.add(Filter(it.filter_name.text.toString()))
-
-                    } else {
-                        checkedFilters.remove(Filter(it.filter_name.text.toString()))
-                    }
-
                 }
             }
         }
 
+        private fun View.bindTitle(filter: Filter) {
+            tvFilterTitle.text = filter.title
+        }
+
+        private fun View.bindCheckBox(filter: Filter) {
+            checkbox.isChecked = checkedFilters.contains(filter)
+            checkbox.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    checkedFilters.add(Filter(tvFilterTitle.text.toString()))
+                } else {
+                    checkedFilters.remove(Filter(tvFilterTitle.text.toString()))
+                }
+            }
+        }
     }
 }

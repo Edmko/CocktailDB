@@ -7,9 +7,9 @@ import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
 import com.example.cocktaildb.R
-import kotlinx.android.synthetic.main.cocktail_type_item.view.*
+import kotlinx.android.synthetic.main.item_cocktail_type.view.*
 
-@EpoxyModelClass(layout = R.layout.cocktail_type_item)
+@EpoxyModelClass(layout = R.layout.item_cocktail_type)
 abstract class TypeModel :EpoxyModelWithHolder<TypeModel.Holder>(){
 
     @EpoxyAttribute lateinit var type : String
@@ -23,7 +23,7 @@ abstract class TypeModel :EpoxyModelWithHolder<TypeModel.Holder>(){
     class Holder : EpoxyHolder(){
         lateinit var type : TextView
         override fun bindView(itemView: View) {
-            type = itemView.type
+            type = itemView.tvType
         }
     }
 }

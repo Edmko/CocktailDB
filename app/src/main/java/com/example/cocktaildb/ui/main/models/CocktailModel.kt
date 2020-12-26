@@ -1,6 +1,5 @@
 package com.example.cocktaildb.ui.main.models
 
-import android.view.KeyCharacterMap.load
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -10,9 +9,9 @@ import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
 import com.bumptech.glide.Glide
 import com.example.cocktaildb.R
-import kotlinx.android.synthetic.main.drink_item.view.*
+import kotlinx.android.synthetic.main.item_drink.view.*
 
-@EpoxyModelClass(layout = R.layout.drink_item)
+@EpoxyModelClass(layout = R.layout.item_drink)
 abstract class CocktailModel : EpoxyModelWithHolder<CocktailModel.Holder>() {
 
     @EpoxyAttribute
@@ -33,8 +32,8 @@ abstract class CocktailModel : EpoxyModelWithHolder<CocktailModel.Holder>() {
         lateinit var titleView: TextView
         lateinit var image: ImageView
         override fun bindView(itemView: View) {
-            titleView = itemView.title
-            image = itemView.image
+            titleView = itemView.tvTitle
+            image = itemView.imgCocktail
 
         }
 
