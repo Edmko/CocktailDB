@@ -24,7 +24,9 @@ class MainViewModel @Inject constructor(
 
     var offset = 0
 
-
+    fun getAdapterFilterList(): List<Filter>{
+        return if (filterList.size<=offset) filterList else filterList.subList(0, offset)
+    }
     fun setFilters(filters: List<Filter>?) {
         isFiltersSelected = true
         filterList.clear()
@@ -48,7 +50,6 @@ class MainViewModel @Inject constructor(
 
     fun loadCocktails() {
         viewModelScope.launch {
-
             val tempDrinks = mutableListOf<Drink>()
            tempDrinks.addAll(_drinksList.value?: emptyList())
             tempDrinks.addAll(repository.getDrinksByFilter(filterList[offset].title))

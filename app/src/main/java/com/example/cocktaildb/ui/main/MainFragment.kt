@@ -49,7 +49,7 @@ class MainFragment : BaseFragment<MainViewModel>() {
 
     private fun listenViewModel() {
         viewModel.drinksList.observe(viewLifecycleOwner, { drinks ->
-            controller.submitList(viewModel.filterList.subList(0, viewModel.offset), drinks)
+            controller.submitList(viewModel.getAdapterFilterList(), drinks)
 
         })
 
