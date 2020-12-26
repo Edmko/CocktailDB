@@ -26,7 +26,9 @@
         tools:layout="@layout/filter_fragment">
         <action
             android:id="@+id/action_filterFragment_to_mainFragment"
-            app:destination="@id/mainFragment" />
+            app:destination="@id/mainFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/mainFragment" />
         <argument
             android:name="filterList"
             app:argType="com.example.cocktaildb.data.entity.Filter[]" />
